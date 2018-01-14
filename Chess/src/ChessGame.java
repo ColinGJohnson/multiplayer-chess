@@ -1,5 +1,3 @@
-package net.colinjohnson;
-
 public class ChessGame {
     private PlayerPiece[][] board = new PlayerPiece[8][8];
     public Player white;

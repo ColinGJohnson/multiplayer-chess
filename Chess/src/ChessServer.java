@@ -6,6 +6,7 @@ public class ChessServer {
     private ServerSocket chessService = null;
     private ArrayList<ClientHandler> clients = new ArrayList<>();
     private Thread clientAdd;
+    private ChessGame game;
 
     public ChessServer(int ServerPort) {
         try {

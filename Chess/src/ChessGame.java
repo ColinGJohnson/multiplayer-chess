@@ -1,7 +1,9 @@
+import java.awt.*;
+
 public class ChessGame {
-    private PlayerPiece[][] board = new PlayerPiece[8][8];
-    public Player white;
-    public Player black;
+    private PlayerPiece[][] board = new PlayerPiece[8][8]; // row-major array representation of chess board
+    public Player white; // the Player with white pieces
+    public Player black; // the Player with black pieces
 
     /**
      * ChessGame constructor
@@ -10,9 +12,9 @@ public class ChessGame {
      * @param blackName Name for the player with black pieces.
      */
     public ChessGame(String whiteName, String blackName) {
-        resetBoard();
         white = new Player(true, whiteName);
         black = new Player(false, blackName);
+        resetBoard();
     } // ChessGame constructor
 
     /**
@@ -29,7 +31,7 @@ public class ChessGame {
     } // Piece
 
     /**
-     * Class representing a Player who has a name and is white or black
+     * Inner class representing a Player who has a name and is white or black
      */
     private class Player {
         public Player(boolean white, String name) {
@@ -44,7 +46,7 @@ public class ChessGame {
     } // Player
 
     /**
-     * Class representing a Piece owned by a specific player
+     * Inner class representing a Piece owned by a specific player
      */
     private class PlayerPiece {
         public PlayerPiece() {
@@ -95,13 +97,19 @@ public class ChessGame {
     } // getSymbol
 
     public void printBoard() {
+        System.out.println(textBoard());
+    } // printBoard
+
+    public String textBoard(){
+        String s = "";
         for (int r = 0; r < board.length; r++) {
             for (int c = 0; c < board[0].length; c++) {
-                System.out.print(getSymbol(board[r][c]) + " ");
+                s += getSymbol(board[r][c]) + " ";
             }
-            System.out.print("\n");
+            s += "\n";
         }
-    } // printBoard
+        return s;
+    } // textBoard
 
     public void printBoardInverted() {
         for (int r = board.length; r > 0; r--) {
@@ -165,10 +173,48 @@ public class ChessGame {
     /**
      * Handles a request to move a piece from a given Player.
      *
-     * @param source The Player attempting to make this move
+     * @param source   The Player attempting to make this move
+     * @param moveCode String representation of the attempted move
      * @return true if the move was legal and was executed, false otherwise.
      */
-    public boolean movePiece(Player source) {
+    public boolean movePiece(Player source, String moveCode) {
+        if (moveCode.length() != 4) {
+            return false;
+        }
+
+        Point start = getBoardCoordiate(moveCode.substring(0, 2));
+        Point end = getBoardCoordiate(moveCode.substring(2));
+
         return false;
     } // movePiece
+
+    /**
+     * Gets a coordinate on the two-dimensional board from algebraic chess notation.
+     *
+     * @param moveCode The moveCode to translate. Eg. "A2A3"
+     * @return The point (r,c), accessed (x,y), on the chess board represented by the given moveCode, null if the moveCode is invalid.
+     */
+    public Point getBoardCoordiate(String moveCode) {
+
+        // remove whitespace
+        moveCode = moveCode.replaceAll("[\\s]", "");
+
+        // reject strings with invalid formatting
+        if (moveCode == null
+                || moveCode.length() != 2
+                || !moveCode.substring(0, 1).matches("[a-hA-H]")
+                || !moveCode.substring(1, 2).matches("[1-8]")) {
+            return null;
+        }
+
+        // parse the moveCode and return it
+        int r = (board.length - 1) - (moveCode.charAt(1) - 49);
+        int c = (moveCode.substring(0,1).toLowerCase().toCharArray()[0] - 97);
+        return new Point(r,c);
+    } // getBoardCoordinate
+
+    public static void main(String args[]){
+       ChessGame test = new ChessGame("","");
+        test.printBoard();
+    }
 } // ChessGame

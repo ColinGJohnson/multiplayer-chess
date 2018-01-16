@@ -99,6 +99,7 @@ public class ChessClient {
         }
         System.out.println("Disconnected from server.");
         connected = false;
+        System.exit(0);
     } // disconnect
 
     public static void main(String[] args) {

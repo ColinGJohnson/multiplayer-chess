@@ -3,10 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class ChessClient {
     private String serverAddress = "0.0.0.0";
@@ -18,10 +15,17 @@ public class ChessClient {
     ArrayList<String> messageQueue = new ArrayList<String>();
     Thread listen = new Thread();
 
+    Scanner scanner = new Scanner(System.in);
+
     private void play() {
         if (!connected) {
             System.out.println("No connection to play on.");
             return;
+        } else {
+            while(connected){
+                output.println(scanner.nextLine());
+            }
+            System.out.println("No connection to play on.");
         }
     } // play
 

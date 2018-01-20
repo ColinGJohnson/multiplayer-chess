@@ -5,8 +5,11 @@ import java.util.*;
 public class ChessServer {
     private ServerSocket chessService = null;
     private ArrayList<ClientHandler> clients = new ArrayList<>();
+    private ClientHandler whiteClient;
+    private ClientHandler blackClient;
     private Thread clientAdd;
     private ChessGame game;
+    boolean serverOpen;
 
     public ChessServer(int ServerPort) {
         try {
@@ -51,7 +54,72 @@ public class ChessServer {
                 checkConnections();
             }
         }, new Date(), 1000);
+
+        serverOpen = true;
+        playGame();
     } // ChessServer Constructor
+
+    public void playGame() {
+
+        // wait for players
+        broadcast("Waiting for players... " + clients.size() + "/2");
+        while(true){
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (clients.size() >= 2){
+                whiteClient = clients.get(0);
+                blackClient = clients.get(1);
+                break;
+            }
+        }
+
+        // start a new chess game
+        game = new ChessGame(clients.get(0).getName(), clients.get(1).getName());
+
+        // boolean value to track whose move it is
+        boolean whiteMove = true;
+
+        // game loop
+        while (serverOpen) {
+
+            // send board to players
+            if (whiteMove) {
+                broadcast(game.textBoard() + "\nWhite's move.");
+            } else {
+                broadcast(game.textBoard() + "\nBlack's move.");
+            }
+
+            // get input from player until valid move is provided
+            String message = "";
+            boolean moveSuccess = false;
+            do {
+                // wait a while before trying again
+                // TODO: Find out why things don't work if wait is removed.
+                try {
+                    Thread.sleep(250);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // get next move from client, restart loop if no pending move
+                if (whiteMove) {
+                    message = whiteClient.nextMove();
+                } else {
+                    message = blackClient.nextMove();
+                }
+                if (message == null) continue;
+
+                // attempt to execute move
+                moveSuccess = game.move(whiteMove, message);
+            } while (!moveSuccess);
+
+            // change active player
+            whiteMove = !whiteMove;
+        }
+    } // gameLoop
 
     public void broadcast(String message) {
         System.out.println("[Broadcast] " + message);

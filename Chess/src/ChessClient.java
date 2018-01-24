@@ -14,22 +14,26 @@ public class ChessClient {
     PrintWriter output = null;
     ArrayList<String> messageQueue = new ArrayList<String>();
     Thread listen = new Thread();
-
     Scanner scanner = new Scanner(System.in);
+
+    public ChessClient (String serverAddress, int serverPort) {
+        connect("localhost", 1500);
+        play();
+    } // ChessClient constructor
 
     private void play() {
         if (!connected) {
             System.out.println("No connection to play on.");
             return;
         } else {
-            while(connected){
+            while (connected) {
                 output.println(scanner.nextLine());
             }
             System.out.println("No connection to play on.");
         }
     } // play
 
-    private void connect(String serverAddress, int serverPort) {
+    public void connect(String serverAddress, int serverPort) {
         try {
             clientSocket = new Socket(serverAddress, serverPort);
         } catch (IOException e) {
@@ -67,8 +71,21 @@ public class ChessClient {
                         System.out.println("[!] Failed to read from server.");
                         disconnect();
                     }
+
+                    // if the client has received messages, handle them.
                     if (!messageQueue.isEmpty()) {
-                        System.out.println("[S] " + messageQueue.get(0));
+
+                        // messages starting with '!' regard connection status
+                        if (messageQueue.get(0).length() >= 1 && messageQueue.get(0).charAt(0) == '!') {
+                            System.out.println("Connection Closed By Server. Reason: " + messageQueue.get(0).substring(1));
+                            disconnect();
+
+                            // other messages are meant to be displayed to the client eg. board appearance
+                        } else {
+                            System.out.println("[S] " + messageQueue.get(0));
+                        }
+
+                        // remove handled message
                         messageQueue.remove(0);
                     }
                 }
@@ -87,6 +104,7 @@ public class ChessClient {
     } // connect
 
     private void disconnect() {
+        System.out.println("Disconnecting from server...");
         if (output == null || input == null || clientSocket == null) {
             System.out.println("[!] No connection from which to disconnect.");
             return;
@@ -105,12 +123,4 @@ public class ChessClient {
         connected = false;
         System.exit(0);
     } // disconnect
-
-    public static void main(String[] args) {
-        ConsoleWindow window = new ConsoleWindow();
-
-        ChessClient client = new ChessClient();
-        client.connect("localhost", 1500);
-        client.play();
-    }
 } // ChessClient

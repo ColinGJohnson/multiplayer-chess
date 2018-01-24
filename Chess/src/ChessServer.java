@@ -10,6 +10,7 @@ public class ChessServer {
     private Thread clientAdd;
     private ChessGame game;
     boolean serverOpen;
+    private Thread scannerInput;
 
     public ChessServer(int ServerPort) {
         try {
@@ -45,6 +46,25 @@ public class ChessServer {
             }
         };
         clientAdd.start();
+
+        // start a new thread to watch for server console input
+        scannerInput = new Thread() {
+            @Override
+            public void run(){
+                String s;
+                Scanner scanner = new Scanner(System.in);
+
+                while(true){
+                    s = scanner.nextLine();
+                    if (s.isEmpty()){
+                        continue;
+                    } else if (s.toLowerCase().trim().startsWith("\\broadcast")){
+                        broadcast(s.replace("\\broadcast", "").trim());
+                    }
+                }
+            }
+        };
+        scannerInput.start();
 
         Timer connectionMonitor = new Timer();
         connectionMonitor.scheduleAtFixedRate(new TimerTask() {
@@ -122,7 +142,7 @@ public class ChessServer {
     } // gameLoop
 
     public void broadcast(String message) {
-        System.out.println("[Broadcast] " + message);
+        System.out.println("[Broadcast] \"" + message + "\"");
         for (ClientHandler client : clients) {
             client.output.println(message);
         }
@@ -157,8 +177,4 @@ public class ChessServer {
             e.printStackTrace();
         }
     } // close
-
-    public static void main(String[] args) {
-        ChessServer server = new ChessServer(1500);
-    }
 } // ChessServer

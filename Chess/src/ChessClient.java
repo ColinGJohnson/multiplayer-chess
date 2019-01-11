@@ -17,10 +17,18 @@ public class ChessClient {
     Scanner scanner = new Scanner(System.in);
 
     public ChessClient (String serverAddress, int serverPort) {
-        connect("localhost", 1500);
+        connect(serverAddress, serverPort);
         play();
     } // ChessClient constructor
 
+    public ChessClient () {
+        connect("localhost", 1500);
+        play();
+    } // default ChessClient constructor
+
+    /**
+     * Sends scanner input to the server until the current connection is terminated, if one exists.
+     */
     private void play() {
         if (!connected) {
             System.out.println("No connection to play on.");
@@ -51,7 +59,7 @@ public class ChessClient {
             return;
         }
 
-        System.out.println(String.format("connected to server at %s:%s", serverAddress, serverPort));
+        System.out.println(String.format("Connected to server at %s:%s", serverAddress, serverPort));
         this.serverPort = serverPort;
         this.serverAddress = serverAddress;
         connected = true;
@@ -103,6 +111,9 @@ public class ChessClient {
         }, new Date(), 1000);
     } // connect
 
+    /**
+     * Terminates the current connection to a chess server, if one exists.
+     */
     private void disconnect() {
         System.out.println("Disconnecting from server...");
         if (output == null || input == null || clientSocket == null) {

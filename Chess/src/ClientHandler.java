@@ -130,6 +130,21 @@ public class ClientHandler {
         return null;
     }
 
+    /**
+     * Sends a message to this client if it is currently connected.
+     * @param whisper true if this message is being sent only to this client, false if this message is a broadcast to
+     *                multiple users.
+     */
+    public void sendMessage(String message, boolean whisper) {
+        if (connected) {
+            if (whisper) {
+                output.println("[W] \"" + message + "\"");
+            } else {
+                output.println("[B] \"" + message + "\"");
+            }
+        }
+    }
+
     public String getName() {
         return name;
     }

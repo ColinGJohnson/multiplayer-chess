@@ -75,8 +75,16 @@ public class ChessServer {
             }
         }, new Date(), 1000);
 
+        // the server is now open
         serverOpen = true;
-        playGame();
+
+        // keep starting new games until the server is closed
+        while (serverOpen) {
+            playGame();
+        }
+
+        // end the program when the server is closed
+        System.exit(0);
     } // ChessServer Constructor
 
     public void playGame() {
@@ -89,6 +97,8 @@ public class ChessServer {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            // start a game between the first two clients connected
             if (clients.size() >= 2){
                 whiteClient = clients.get(0);
                 blackClient = clients.get(1);
@@ -98,12 +108,14 @@ public class ChessServer {
 
         // start a new chess game
         game = new ChessGame(clients.get(0).getName(), clients.get(1).getName());
+        whiteClient.sendMessage("Your pieces are white (lowercase)", true);
+        blackClient.sendMessage("Your pieces are black (uppercase)", true);
 
         // boolean value to track whose move it is
         boolean whiteMove = true;
 
         // game loop
-        while (serverOpen) {
+        while (serverOpen && !game.over) {
 
             // send board to players
             if (whiteMove) {
@@ -116,8 +128,15 @@ public class ChessServer {
             String message = "";
             boolean moveSuccess = false;
             do {
+
+                // end game if one of the clients ends their connection
+                if (!whiteClient.connected || !blackClient.connected){
+                    game.over = true;
+                    break;
+                }
+
                 // wait a while before trying again
-                // TODO: Find out why things don't work if wait is removed.
+                // TODO: Find out why things don't work if wait is removed. (race condition?)
                 try {
                     Thread.sleep(250);
                 } catch (InterruptedException e) {
@@ -139,12 +158,14 @@ public class ChessServer {
             // change active player
             whiteMove = !whiteMove;
         }
+
+        broadcast("The game has ended, returning to lobby!");
     } // gameLoop
 
     public void broadcast(String message) {
         System.out.println("[Broadcast] \"" + message + "\"");
         for (ClientHandler client : clients) {
-            client.output.println(message);
+            client.sendMessage(message, false);
         }
     } // broadcast
 

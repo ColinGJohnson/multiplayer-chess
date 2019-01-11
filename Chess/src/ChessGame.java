@@ -2,6 +2,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class ChessGame {
+    public boolean over = false;
     private Piece[][] board = new Piece[8][8]; // row-major array representation of chess board
     public Player white; // the Player with white pieces
     public Player black; // the Player with black pieces

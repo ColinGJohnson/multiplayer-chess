@@ -3,14 +3,21 @@ import java.net.ServerSocket;
 import java.util.*;
 
 public class ChessServer {
+
+    // networking
+    boolean serverOpen = false;
     private ServerSocket chessService = null;
     private ArrayList<ClientHandler> clients = new ArrayList<>();
     private ClientHandler whiteClient;
     private ClientHandler blackClient;
     private Thread clientAdd;
+
+    // chess game
     private ChessGame game;
-    boolean serverOpen;
-    private Thread scannerInput;
+
+    // input
+    Deque<String> GUIcommands;
+    private Thread consoleInput;
 
     public ChessServer(int ServerPort) {
         try {
@@ -48,7 +55,7 @@ public class ChessServer {
         clientAdd.start();
 
         // start a new thread to watch for server console input
-        scannerInput = new Thread() {
+        consoleInput = new Thread() {
             @Override
             public void run(){
                 String s;
@@ -64,7 +71,7 @@ public class ChessServer {
                 }
             }
         };
-        scannerInput.start();
+        consoleInput.start();
 
         Timer connectionMonitor = new Timer();
         connectionMonitor.scheduleAtFixedRate(new TimerTask() {

@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class ConsoleWindow {
+public class ChessLauncher {
     public static void main(String args[]){
         Scanner scanner = new Scanner(System.in);
 
@@ -9,6 +9,8 @@ public class ConsoleWindow {
             System.exit(-1);
 
         } else if (args[0].equals("-c")){
+            ChessServerGUI gui = new ChessServerGUI();
+
             System.out.println("Starting as Client.");
             System.out.print("Enter server address:");
             String address = scanner.nextLine();
@@ -24,4 +26,4 @@ public class ConsoleWindow {
 
         }
     }
-} // ConsoleWindow
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ChessServerGUI">
+  <grid id="27dc6" binding="panel" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <splitpane id="8e682">
+        <constraints border-constraint="South"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="e3e94" class="javax.swing.JButton" binding="submitButton" default-binding="true">
+            <constraints>
+              <splitpane position="left"/>
+            </constraints>
+            <properties>
+              <text value="Submit"/>
+            </properties>
+          </component>
+          <component id="f4d93" class="javax.swing.JTextField" binding="commandField">
+            <constraints>
+              <splitpane position="right"/>
+            </constraints>
+            <properties/>
+          </component>
+        </children>
+      </splitpane>
+      <component id="4a7f9" class="javax.swing.JTextArea" binding="textArea">
+        <constraints border-constraint="Center"/>
+        <properties>
+          <editable value="false"/>
+          <font name="Courier New" size="18"/>
+          <lineWrap value="true"/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

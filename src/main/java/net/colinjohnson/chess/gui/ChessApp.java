@@ -5,10 +5,19 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import net.colinjohnson.chess.networking.ChessClient;
+import net.colinjohnson.chess.networking.ChessServer;
 
 public class ChessApp extends Application {
     private static final int MIN_WIDTH = 600;
     private static final int MIN_HEIGHT = 400;
+
+    ChessClient client = new ChessClient();
+    ChessServer server = null;
+
+    public boolean isHost() {
+        return server != null;
+    }
 
     public static void main(String[] args) {
         launch(args);

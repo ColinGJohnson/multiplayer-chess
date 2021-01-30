@@ -1,9 +1,14 @@
 package net.colinjohnson.chess.core;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.colinjohnson.chess.core.pieces.ChessPiece;
+import net.colinjohnson.chess.core.pieces.PieceType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class modelling a 8x8 chess board. No chess rules are verified.
@@ -11,13 +16,16 @@ import java.util.ArrayList;
 public class ChessBoard implements Serializable {
 
     // Width (and height) of a standard chess board
-    public static final int SIZE = 8;
+    public static final int NUM_RANKS = 8;
+    public static final int NUM_FILES = 8;
 
     // 2-D array of chess pieces representing board arrangement
-    private final ChessPiece[][] board = new ChessPiece[8][8];
+    private final ChessPiece[][] board = new ChessPiece[NUM_RANKS][NUM_FILES];
 
     // List of pieces currently on this chess board
     private ArrayList<ChessPiece> pieces;
+
+    private ArrayList<ChessBoardObserver> observers;
 
     /**
      * Construct a new empty chess board.
@@ -39,13 +47,49 @@ public class ChessBoard implements Serializable {
         }
     }
 
-    public static ChessBoard fromJSON(String json) {
-        ChessBoard decodedBoard = new ChessBoard();
+    public void registerObserver(ChessBoardObserver observer) {
+        observers.add(observer);
+    }
 
-        // TODO: method stub
+    public void detachObserver(ChessBoardObserver observer) {
+        observers.remove(observer);
+    }
+
+    public static ChessBoard fromJSON(String json) throws JsonProcessingException {
+
         // decode json
+        ObjectMapper objectMapper = new ObjectMapper();
+        List<List<String>> parsedJson = objectMapper.readValue(json, new TypeReference<>(){});
 
         // construct board
+        ChessBoard decodedBoard = new ChessBoard();
+
+        for (int i = 0; i < parsedJson.size(); i++) {
+            List<String> row = parsedJson.get(i);
+
+            for (int j = 0; j < row.size(); j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                char symbol = row.get(j).charAt(0);
+
+                // skip empty squares (leave as null on board)
+                if (symbol == ' ') {
+                    continue;
+                }
+
+                ChessColor color = (int)symbol < 97 ? ChessColor.BLACK : ChessColor.WHITE;
+                symbol = Character.toLowerCase(symbol);
+                PieceType pieceType = switch(symbol) {
+                    case 'p' -> PieceType.PAWN;
+                    case 'r' -> PieceType.ROOK;
+                    case 'n' -> PieceType.KNIGHT;
+                    case 'b' -> PieceType.BISHOP;
+                    case 'q' -> PieceType.QUEEN;
+                    case 'k' -> PieceType.KING;
+                    default -> throw new IllegalStateException("Unexpected value: " + symbol);
+                };
+                decodedBoard.addPiece(ChessPiece.getPieceOfType(pieceType, color, position));
+            }
+        }
 
         return decodedBoard;
     }
@@ -103,7 +147,8 @@ public class ChessBoard implements Serializable {
         }
 
         pieces.add(piece);
-        board[piece.getPosition().getRank()][piece.getPosition().getFile()] = piece;
+        ChessPosition position = piece.getPosition();
+        board[position.getRank()][position.getFile()] = piece;
     }
 
     /**

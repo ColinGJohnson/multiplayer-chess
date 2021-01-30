@@ -3,6 +3,7 @@ package net.colinjohnson.chess.core;
 import net.colinjohnson.chess.core.pieces.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class representing a game of chess.
@@ -33,8 +34,8 @@ public class ChessGame {
      * @param blackName Name for the player with black pieces.
      */
     public ChessGame(String whiteName, String blackName) {
-        whitePlayer = new ChessPlayer(ChessColor.white, whiteName);
-        blackPlayer = new ChessPlayer(ChessColor.black, blackName);
+        whitePlayer = new ChessPlayer(ChessColor.WHITE, whiteName);
+        blackPlayer = new ChessPlayer(ChessColor.BLACK, blackName);
         board = new ChessBoard();
     }
 
@@ -63,22 +64,22 @@ public class ChessGame {
      * @param rank      The rank of the pawn to promote.
      * @return True if the promotion was successful, false otherwise.
      */
-    public boolean promotePiece(ChessPiece.PieceType promotion, int file, int rank) {
+    public boolean promotePiece(PieceType promotion, int file, int rank) {
 
         // no player can have two kings
-        if (promotion == ChessPiece.PieceType.KING) {
+        if (promotion == PieceType.KING) {
             return false;
         }
 
         // there must be a pawn at the given location
         ChessPiece targetPawn = board.getPieceAt(new ChessPosition(rank, file));
-        if (targetPawn.getPieceType() != ChessPiece.PieceType.PAWN) {
+        if (targetPawn.getPieceType() != PieceType.PAWN) {
             return false;
         }
 
         // the pawn must be at the correct end of the board
-        if ((targetPawn.getColor() == ChessColor.white && rank != 7) ||
-                (targetPawn.getColor() == ChessColor.black && rank != 0)) {
+        if ((targetPawn.getColor() == ChessColor.WHITE && rank != 7) ||
+                (targetPawn.getColor() == ChessColor.BLACK && rank != 0)) {
             return false;
         }
 
@@ -86,12 +87,7 @@ public class ChessGame {
         ChessPosition position = targetPawn.getPosition();
         ChessColor color = targetPawn.getColor();
         board.removePiece(targetPawn);
-        switch (promotion) {
-            case ROOK -> board.addPiece(new Rook(color, position));
-            case KNIGHT -> board.addPiece(new Knight(color, position));
-            case BISHOP -> board.addPiece(new Bishop(color, position));
-            case QUEEN -> board.addPiece(new Queen(color, position));
-        }
+        board.addPiece(ChessPiece.getPieceOfType(promotion, color, position));
         return true;
     }
 
@@ -102,7 +98,7 @@ public class ChessGame {
      * @param position  The position of the pawn to promote.
      * @return True if the promotion was successful, false otherwise.
      */
-    public boolean promotePiece(ChessPiece.PieceType promotion, ChessPosition position) {
+    public boolean promotePiece(PieceType promotion, ChessPosition position) {
         return promotePiece(promotion, position.getFile(), position.getRank());
     }
 
@@ -111,15 +107,11 @@ public class ChessGame {
      * player.
      */
     public void switchCurrentPlayer() {
-        if (currentPlayer.getColor() == ChessColor.white) {
+        if (currentPlayer.getColor() == ChessColor.WHITE) {
             currentPlayer = blackPlayer;
         } else {
             currentPlayer = whitePlayer;
         }
-    }
-
-    public static void addMoveIfPositionValid(ArrayList<ChessMove> moves, ChessPosition start) {
-
     }
 
     /**
@@ -127,10 +119,10 @@ public class ChessGame {
      * be no valid moves if the piece or the board is the piece is not on the board, or if either
      * the board or the piece
      *
-     * @param board
-     * @return
+     * @param board The chess board to get valid moves on.
+     * @return A list of valid moves.
      */
-    public static ArrayList<ChessMove> getValidMoves(ChessBoard board) {
+    public static List<ChessMove> getValidMoves(ChessBoard board) {
 
         if (board == null) {
             throw new NullPointerException("Board must not be null.");
@@ -182,7 +174,7 @@ public class ChessGame {
 
         // material evaluation
         for (ChessPiece piece : board.getPieces()) {
-            if (piece.getColor() == ChessColor.white) {
+            if (piece.getColor() == ChessColor.WHITE) {
                 evaluation += piece.getValue();
             } else {
                 evaluation -= piece.getValue();

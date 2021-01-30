@@ -2,7 +2,6 @@ package net.colinjohnson.chess.core.pieces;
 
 import net.colinjohnson.chess.core.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,15 +12,6 @@ public abstract class ChessPiece implements Cloneable {
 
     private ChessColor color;
     private ChessPosition position;
-
-    public enum PieceType {
-        BISHOP,
-        KING,
-        KNIGHT,
-        PAWN,
-        QUEEN,
-        ROOK
-    }
 
     public ChessPiece(ChessColor color, ChessPosition position) {
         this.color = color;
@@ -62,4 +52,30 @@ public abstract class ChessPiece implements Cloneable {
     public abstract PieceType getPieceType();
 
     public abstract ChessPiece clone();
+
+    public static ChessPiece getPieceOfType(PieceType type, ChessColor color, ChessPosition position) {
+        ChessPiece piece;
+        switch (type) {
+            case BISHOP -> {
+                piece = new Bishop(color, position);
+            }
+            case KING -> {
+                piece = new King(color, position);
+            }
+            case KNIGHT -> {
+                piece = new Knight(color, position);
+            }
+            case PAWN -> {
+                piece = new Pawn(color, position);
+            }
+            case QUEEN -> {
+                piece = new Queen(color, position);
+            }
+            case ROOK -> {
+                piece = new Rook(color, position);
+            }
+            default -> throw new IllegalStateException("Unexpected value: " + type);
+        }
+        return piece;
+    }
 }

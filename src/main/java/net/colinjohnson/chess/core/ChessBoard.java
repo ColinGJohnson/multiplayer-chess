@@ -3,6 +3,7 @@ package net.colinjohnson.chess.core;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import net.colinjohnson.chess.core.pieces.ChessPiece;
 import net.colinjohnson.chess.core.pieces.PieceType;
 
@@ -15,12 +16,11 @@ import java.util.List;
  */
 public class ChessBoard implements Serializable {
 
-    // Width (and height) of a standard chess board
-    public static final int NUM_RANKS = 8;
-    public static final int NUM_FILES = 8;
+    // Width and height of a standard chess board
+    public static final int BOARD_SIZE = 8;
 
     // 2-D array of chess pieces representing board arrangement
-    private final ChessPiece[][] board = new ChessPiece[NUM_RANKS][NUM_FILES];
+    private ChessPiece[][] board = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
 
     // List of pieces currently on this chess board
     private ArrayList<ChessPiece> pieces;
@@ -41,7 +41,7 @@ public class ChessBoard implements Serializable {
      * @param chessBoard The chess board to copy.
      */
     public ChessBoard(ChessBoard chessBoard) {
-        super();
+        this();
         for (ChessPiece chessPiece : chessBoard.getPieces()) {
             addPiece(chessPiece.clone());
         }
@@ -95,13 +95,54 @@ public class ChessBoard implements Serializable {
     }
 
     /**
-     * Creates a JSON representation of this board in a format readable by fromjson()
+     * Creates a JSON representation of this board readable by {@link #fromJSON(String)}.
      *
      * @return A JSON string representing this board.
      */
     public String toJSON() {
-        // TODO: method stub
-        return "";
+
+        List<List<String>> encodedBoard = new ArrayList<>();
+
+        for (int r = 0; r < board.length; r++) {
+            ArrayList<String> row = new ArrayList<>();
+
+            for (int c = 0; c < board[r].length; c++) {
+                ChessPiece piece = board[r][c];
+
+                String symbol = "";
+
+                if (piece != null) {
+                    symbol = switch (piece.getPieceType()) {
+                        case BISHOP -> "b";
+                        case KING -> "k";
+                        case KNIGHT -> "n";
+                        case PAWN -> "p";
+                        case QUEEN -> "q";
+                        case ROOK -> "r";
+                    };
+
+                    if (piece.getColor() == ChessColor.BLACK) {
+                        symbol = symbol.toUpperCase();
+                    }
+                }
+
+                row.add(symbol);
+            }
+            encodedBoard.add(row);
+        }
+
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+            return objectMapper.writeValueAsString(encodedBoard);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    public ChessPiece getPieceAt(int rank, int file) {
+        return board[rank][file];
     }
 
     public ChessPiece getPieceAt(ChessPosition position) {
@@ -118,7 +159,7 @@ public class ChessBoard implements Serializable {
      *
      * @param move The move to execute on this chess board.
      */
-    public ChessBoard movePiece(ChessMove move) {
+    public void movePiece(ChessMove move) {
         ChessPiece movedPiece = getPieceAt(move.from);
         ChessPiece capturedPiece = getPieceAt(move.to);
 
@@ -131,8 +172,6 @@ public class ChessBoard implements Serializable {
             pieces.remove(capturedPiece);
         }
         movedPiece.setPosition(move.to);
-
-        return this;
     }
 
     /**
@@ -181,5 +220,22 @@ public class ChessBoard implements Serializable {
      */
     public boolean containsPiece(ChessPiece piece) {
         return pieces.contains(piece);
+    }
+
+    /**
+     * Rotate this 90 degrees clockwise. Used to cleanly implement move checking.
+     *
+     * @param n The number of 90 degree rotations to perform.
+     */
+    public ChessBoard rotateCW(int n) {
+        ChessPiece[][] rotatedBoard = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
+
+        for (ChessPiece piece: pieces) {
+            ChessPosition position = piece.getPosition().rotateCW(n);
+            rotatedBoard[position.getRank()][position.getFile()] = piece;
+        }
+
+        board = rotatedBoard;
+        return this;
     }
 }

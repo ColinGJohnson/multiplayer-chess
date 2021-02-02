@@ -11,20 +11,9 @@ import java.util.List;
  * @author Colin Johnson
  */
 public class ChessGame {
-
-    // true when the game is finished, either by a checkmate or a stalemate
-    private boolean finished = false;
-
-    // the current state this chess game's board
     private final ChessBoard board;
-
-    // the player with white pieces
     private final ChessPlayer whitePlayer;
-
-    // the player with black pieces
     private final ChessPlayer blackPlayer;
-
-    // reference to the current player
     private ChessPlayer currentPlayer;
 
     /**
@@ -150,6 +139,7 @@ public class ChessGame {
             return false;
         }
 
+        // check if the target piece can move in the requested fashion
         for (ChessMove validMove : movedPiece.getMoves(board)) {
             if (validMove.to == move.to && validMove.from == move.from) {
                 return true;
@@ -163,13 +153,12 @@ public class ChessGame {
     }
 
     /**
-     * Evaluates a given chess board.
+     * Evaluates this game's current board.
      *
-     * @param board The board to evaluate.
      * @return An integer indicating which player has the advantage. Positive numbers indicate a
      * white advantage, while negative numbers indicate a black advantage.
      */
-    public static int evaluateBoard(ChessBoard board) {
+    public int evaluateBoard() {
         int evaluation = 0;
 
         // material evaluation
@@ -182,19 +171,5 @@ public class ChessGame {
         }
 
         return evaluation;
-    }
-
-    public int evaluateBoard() {
-        return evaluateBoard(board);
-    }
-
-    public static int evaluateMove(ChessBoard board, ChessMove move) {
-        int boardEvalBefore = evaluateBoard(board);
-        int boardEvalAfter = evaluateBoard((new ChessBoard(board)).movePiece(move));
-        return boardEvalAfter - boardEvalBefore;
-    }
-
-    public int evaluateMove(ChessMove move) {
-        return evaluateMove(board, move);
     }
 }

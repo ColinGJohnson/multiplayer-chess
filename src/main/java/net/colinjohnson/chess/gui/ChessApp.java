@@ -12,7 +12,7 @@ public class ChessApp extends Application {
     private static final int MIN_WIDTH = 600;
     private static final int MIN_HEIGHT = 400;
 
-    ChessClient client = new ChessClient();
+    ChessClient client = null;
     ChessServer server = null;
 
     public boolean isHost() {

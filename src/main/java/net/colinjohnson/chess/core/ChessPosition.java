@@ -1,5 +1,7 @@
 package net.colinjohnson.chess.core;
 
+import net.colinjohnson.chess.core.pieces.ChessPiece;
+
 import java.util.regex.Pattern;
 
 /**
@@ -84,5 +86,15 @@ public class ChessPosition {
 
         ChessPosition chessPosition = (ChessPosition)o;
         return file == chessPosition.getFile() && rank == chessPosition.getRank();
+    }
+
+    public ChessPosition rotateCW(int n) {
+        for (int i = 0; i < n; i++) {
+            int rotatedRank = file;
+            int rotatedFile = ChessBoard.BOARD_SIZE - 1 - rank;
+            setRank(rotatedRank);
+            setFile(rotatedFile);
+        }
+        return this;
     }
 }

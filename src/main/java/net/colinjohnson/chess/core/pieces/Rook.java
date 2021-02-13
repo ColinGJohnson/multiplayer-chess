@@ -18,34 +18,34 @@ public class Rook extends ChessPiece {
 
     @Override
     public List<ChessMove> getMoves(ChessBoard board) {
-        int currentRank = getPosition().getRank();
-        int currentFile = getPosition().getFile();
+        // TODO: Test this
+
+        if (!board.containsPiece(this)) {
+            throw new IllegalArgumentException("Piece not on the given board.");
+        }
+
         List<ChessMove> moves = new ArrayList<>();
 
         for (int i = 0; i < 4; i++) {
             ChessBoard rotatedBoard = new ChessBoard(board).rotateCW(i);
             ChessPosition rotatedPosition = new ChessPosition(getPosition()).rotateCW(i);
-            List<ChessMove> rotatedMoves = new ArrayList<>();
+            List<ChessPosition> rotatedDestinations = new ArrayList<>();
 
-            for (int j = 0; j < ChessBoard.BOARD_SIZE - currentFile; j++) {
-                ChessMove candidate = new ChessMove(getPosition(), 0, j);
-                ChessPiece occupant = board.getPieceAt(candidate.to);
+            for (int j = 0; j < ChessBoard.BOARD_SIZE - rotatedPosition.getFile(); j++) {
+                ChessPosition candidate = new ChessPosition(rotatedPosition, 0, j);
+                ChessPiece occupant = rotatedBoard.getPieceAt(candidate);
 
                 // can't move past a piece of the same color
-                if (occupant.getColor() == getColor()) {
-                    break;
-                }
+                if (occupant.getColor() == getColor()) break;
 
-                rotatedMoves.add(candidate);
+                rotatedDestinations.add(candidate);
 
                 // can't move past a piece without taking it
-                if (occupant != null) {
-                    break;
-                }
+                if (occupant != null) break;
             }
 
-            for (ChessMove move : rotatedMoves) {
-                moves.add(move.rotateCCW(i));
+            for (ChessPosition position : rotatedDestinations) {
+                moves.add(new ChessMove(position.rotateCCW(i), getPosition()));
             }
         }
 

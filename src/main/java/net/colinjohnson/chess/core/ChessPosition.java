@@ -29,6 +29,11 @@ public class ChessPosition {
         setFile(chessPosition.getFile());
     }
 
+    public ChessPosition(ChessPosition chessPosition, int rankChange, int fileChange) {
+        setRank(chessPosition.getRank() + rankChange);
+        setFile(chessPosition.getFile() + fileChange);
+    }
+
     /**
      * Encode this position in FIDE standard algebraic chess notation.
      * @return a string containing a chess board in algebraic notation
@@ -94,6 +99,14 @@ public class ChessPosition {
             int rotatedFile = ChessBoard.BOARD_SIZE - 1 - rank;
             setRank(rotatedRank);
             setFile(rotatedFile);
+        }
+        return this;
+    }
+
+    public ChessPosition rotateCCW(int n) {
+        // TODO: This is lazy and inefficient
+        for (int i = 0; i < 3; i++) {
+            rotateCW(n);
         }
         return this;
     }

@@ -28,9 +28,4 @@ public class ChessMove {
         ChessMove chessMove = (ChessMove)o;
         return to == chessMove.to && from == chessMove.from;
     }
-
-    public ChessMove rotateCCW(int i) {
-        // TODO: method stub
-        return this;
-    }
 }

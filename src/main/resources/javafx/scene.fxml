@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.BorderPane?>
+
+<?import javafx.scene.layout.VBox?>
+<BorderPane fx:controller="net.colinjohnson.chess.gui.FXMLController" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <MenuBar fx:id="menuBar" onKeyPressed="#handleKeyInput">
+            <menus>
+                <Menu text="File">
+                    <items>
+                        <MenuItem text="New"/>
+                        <MenuItem text="Open"/>
+                        <MenuItem text="Save"/>
+                        <MenuItem text="Save As"/>
+                        <SeparatorMenuItem  />
+                        <MenuItem text="Exit"/>
+                    </items>
+                </Menu>
+                <Menu text="Edit">
+                    <items>
+                        <MenuItem text="Copy"/>
+                        <MenuItem text="Cut"/>
+                        <MenuItem text="Paste"/>
+                    </items>
+                </Menu>
+                <Menu text="Help">
+                    <items>
+                        <MenuItem text="Search" disable="true"/>
+                        <MenuItem text="Online Manual" visible="false"/>
+                        <SeparatorMenuItem />
+                        <MenuItem text="About" onAction="#handleAboutAction"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <left>
+        <VBox>
+            <Label text="Who are you?"/>
+            <Button id="button" text="Click Me!" onAction="#handleButtonAction" fx:id="button"/>
+        </VBox>
+    </left>
+</BorderPane>

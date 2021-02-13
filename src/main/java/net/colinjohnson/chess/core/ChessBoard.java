@@ -25,7 +25,7 @@ public class ChessBoard implements Serializable {
     // List of pieces currently on this chess board
     private ArrayList<ChessPiece> pieces;
 
-    private ArrayList<ChessBoardObserver> observers;
+    private final ArrayList<ChessBoardObserver> observers = new ArrayList<>();
 
     /**
      * Construct a new empty chess board.

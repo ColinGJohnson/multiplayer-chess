@@ -9,7 +9,10 @@ import net.colinjohnson.chess.core.ChessBoard;
 import net.colinjohnson.chess.networking.ChessClient;
 import net.colinjohnson.chess.networking.ChessServer;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
 
 public class ChessApp extends Application {
     private static final int MIN_WIDTH = 600;
@@ -30,7 +33,11 @@ public class ChessApp extends Application {
     public void start(Stage stage) throws IOException {
         BorderPane root = FXMLLoader.load(getClass().getResource("/javafx/scene.fxml"));
 
-        root.setCenter(new ChessPane(new ChessBoard()));
+        String fileName = "layouts/default.json";
+        URL url = getClass().getClassLoader().getResource(fileName);
+        String json = new String(Files.readAllBytes(new File(url.getFile()).toPath()));
+        ChessBoard board = ChessBoard.fromJSON(json);
+        root.setCenter(new ChessPane(board));
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/javafx/styles.css").toExternalForm());

@@ -31,7 +31,6 @@ public class FXMLController implements Initializable {
 
 
         //label.setText("Hello, JavaFX " + javafxVersion + "\nRunning on Java " + javaVersion + ".");
-
         //Image image = new Image("/icons/png/pawn_white.png");
         //ImageView imageView = new ImageView(image);
         //label.setGraphic(imageView);

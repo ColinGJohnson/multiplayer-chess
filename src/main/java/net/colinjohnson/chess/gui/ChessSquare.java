@@ -1,10 +1,8 @@
 package net.colinjohnson.chess.gui;
 
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.text.TextAlignment;
 import net.colinjohnson.chess.core.ChessColor;
 import net.colinjohnson.chess.core.pieces.ChessPiece;
 import net.colinjohnson.chess.core.pieces.PieceType;
@@ -46,21 +44,29 @@ public class ChessSquare extends Label {
             setStyle("-fx-background-color: gray;");
         }
 
-        ImageView img = new ImageView(new Image("/icons/png/king_black.png"));
+        /*
+        setText("test");
+        setContentDisplay(ContentDisplay.TOP);
+        setTextAlignment(TextAlignment.CENTER);
+        setGraphicTextGap(10);
+        */
+        setPrefHeight(50);
+        setPrefWidth(50);
+
+    }
+
+    public void setDisplayedPiece(ChessPiece piece) {
+        ImageView img;
+
+        if (piece.getColor() == ChessColor.WHITE) {
+            img = new ImageView(whiteIcons.get(piece.getPieceType()));
+        } else {
+            img = new ImageView(blackIcons.get(piece.getPieceType()));
+        }
+
         img.setPreserveRatio(true);
         img.setFitWidth(50);
         img.setFitHeight(50);
         setGraphic(img);
-
-//        setText("test");
-//        setContentDisplay(ContentDisplay.TOP);
-//        setTextAlignment(TextAlignment.CENTER);
-//        setGraphicTextGap(10);
-        //setPrefHeight(100);
-        //setPrefWidth(100);
-    }
-
-    public void setDisplayedPiece(ChessPiece piece) {
-
     }
 }

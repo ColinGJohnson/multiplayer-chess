@@ -38,8 +38,8 @@
     </top>
     <left>
         <VBox>
-            <Label text="Who are you?"/>
-            <Button id="button" text="Click Me!" onAction="#handleButtonAction" fx:id="button"/>
+            <Label text="Server Status:"/>
+            <Button id="button" text="Connect" onAction="#handleButtonAction" fx:id="button"/>
         </VBox>
     </left>
 </BorderPane>

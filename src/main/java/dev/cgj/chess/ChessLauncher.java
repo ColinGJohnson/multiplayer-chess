@@ -1,7 +1,9 @@
+package dev.cgj.chess;
+
 import java.util.Scanner;
 
 public class ChessLauncher {
-    public static void main(String args[]){
+    public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
 
         if (args.length != 1){
@@ -9,8 +11,6 @@ public class ChessLauncher {
             System.exit(-1);
 
         } else if (args[0].equals("-c")){
-            ChessServerGUI gui = new ChessServerGUI();
-
             System.out.println("Starting as Client.");
             System.out.print("Enter server address:");
             String address = scanner.nextLine();

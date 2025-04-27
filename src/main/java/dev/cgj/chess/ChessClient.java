@@ -1,9 +1,15 @@
+package dev.cgj.chess;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ChessClient {
     private String serverAddress = "0.0.0.0";
@@ -109,7 +115,7 @@ public class ChessClient {
                 output.println("!" + System.currentTimeMillis());
             }
         }, new Date(), 1000);
-    } // connect
+    }
 
     /**
      * Terminates the current connection to a chess server, if one exists.
@@ -133,5 +139,5 @@ public class ChessClient {
         System.out.println("Disconnected from server.");
         connected = false;
         System.exit(0);
-    } // disconnect
-} // ChessClient
+    }
+}

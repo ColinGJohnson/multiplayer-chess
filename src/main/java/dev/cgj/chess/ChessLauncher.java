@@ -1,5 +1,8 @@
 package dev.cgj.chess;
 
+import dev.cgj.chess.client.ChessClient;
+import dev.cgj.chess.server.ChessServer;
+
 import java.util.Scanner;
 
 public class ChessLauncher {
@@ -16,14 +19,13 @@ public class ChessLauncher {
             String address = scanner.nextLine();
             System.out.print("Enter server port:");
             int port = Integer.parseInt(scanner.nextLine());
-            ChessClient client = new ChessClient(address, port);
+            new ChessClient(address, port);
 
         } else if (args[0].equals("-s")){
             System.out.println("Starting as Server.");
             System.out.print("Enter port:");
             int port = Integer.parseInt(scanner.nextLine());
-            ChessServer server = new ChessServer(port);
-
+            new ChessServer(port);
         }
     }
 }

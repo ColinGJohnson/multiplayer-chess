@@ -1,29 +1,24 @@
-package dev.cgj.chess;
+package dev.cgj.chess.server;
+
+import dev.cgj.chess.engine.ChessGame;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ChessServer {
-
-    // networking
-    boolean serverOpen = false;
-    private ServerSocket chessService = null;
-    private ArrayList<ClientHandler> clients = new ArrayList<>();
-    private ClientHandler whiteClient;
-    private ClientHandler blackClient;
-    private Thread clientAdd;
-
-    // chess game
-    private ChessGame game;
-
-    // input
-    Deque<String> GUIcommands;
-    private Thread consoleInput;
+    boolean serverOpen;
+    private ServerSocket socket = null;
+    private final ArrayList<ClientHandler> clients = new ArrayList<>();
 
     public ChessServer(int ServerPort) {
         try {
-            chessService = new ServerSocket(ServerPort);
+            socket = new ServerSocket(ServerPort);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -33,47 +28,37 @@ public class ChessServer {
         System.out.println("Server started on port " + ServerPort);
 
         // start a new thread to handle incoming client connections
-        clientAdd = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        clients.add(new ClientHandler(chessService.accept()));
-                        broadcast("Client at "
-                                + clients.get(clients.size() - 1).address.substring(1)
-                                + " connected, current connections: "
-                                + clients.size()
-                                + ".");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    System.out.println("Error adding client");
-                } finally {
-                    close();
-                    System.exit(0);
+        new Thread(() -> {
+            try {
+                while (true) {
+                    clients.add(new ClientHandler(socket.accept()));
+                    broadcast("Client at "
+                        + clients.get(clients.size() - 1).address.substring(1)
+                        + " connected, current connections: "
+                        + clients.size()
+                        + ".");
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+                System.out.println("Error adding client");
+            } finally {
+                close();
+                System.exit(0);
             }
-        };
-        clientAdd.start();
+        }).start();
 
         // start a new thread to watch for server console input
-        consoleInput = new Thread() {
-            @Override
-            public void run(){
-                String s;
-                Scanner scanner = new Scanner(System.in);
+        new Thread(() -> {
+            String s;
+            Scanner scanner = new Scanner(System.in);
 
-                while(true){
-                    s = scanner.nextLine();
-                    if (s.isEmpty()){
-                        continue;
-                    } else if (s.toLowerCase().trim().startsWith("\\broadcast")){
-                        broadcast(s.replace("\\broadcast", "").trim());
-                    }
+            while (true) {
+                s = scanner.nextLine();
+                if (!s.isEmpty() && s.toLowerCase().trim().startsWith("\\broadcast")) {
+                    broadcast(s.replace("\\broadcast", "").trim());
                 }
             }
-        };
-        consoleInput.start();
+        }).start();
 
         Timer connectionMonitor = new Timer();
         connectionMonitor.scheduleAtFixedRate(new TimerTask() {
@@ -94,13 +79,16 @@ public class ChessServer {
 
         // end the program when the server is closed
         System.exit(0);
-    } // ChessServer Constructor
+    }
 
     public void playGame() {
 
         // wait for players
         broadcast("Waiting for players... " + clients.size() + "/2");
-        while(true){
+        ClientHandler whiteClient;
+        ClientHandler blackClient;
+
+        while (true) {
             try {
                 Thread.sleep(3000);
             } catch (InterruptedException e) {
@@ -108,7 +96,7 @@ public class ChessServer {
             }
 
             // start a game between the first two clients connected
-            if (clients.size() >= 2){
+            if (clients.size() >= 2) {
                 whiteClient = clients.get(0);
                 blackClient = clients.get(1);
                 break;
@@ -116,7 +104,7 @@ public class ChessServer {
         }
 
         // start a new chess game
-        game = new ChessGame(clients.get(0).getName(), clients.get(1).getName());
+        ChessGame game = new ChessGame(clients.get(0).getName(), clients.get(1).getName());
         whiteClient.sendMessage("Your pieces are white (lowercase)", true);
         blackClient.sendMessage("Your pieces are black (uppercase)", true);
 
@@ -139,7 +127,7 @@ public class ChessServer {
             do {
 
                 // end game if one of the clients ends their connection
-                if (!whiteClient.connected || !blackClient.connected){
+                if (!whiteClient.connected || !blackClient.connected) {
                     game.over = true;
                     break;
                 }
@@ -169,14 +157,14 @@ public class ChessServer {
         }
 
         broadcast("The game has ended, returning to lobby!");
-    } // gameLoop
+    }
 
     public void broadcast(String message) {
         System.out.println("[Broadcast] \"" + message + "\"");
         for (ClientHandler client : clients) {
             client.sendMessage(message, false);
         }
-    } // broadcast
+    }
 
     public void checkConnections() {
 
@@ -198,13 +186,13 @@ public class ChessServer {
                 System.out.println("Current connections: " + clients.size());
             }
         }
-    } // checkConnection
+    }
 
     public void close() {
         try {
-            chessService.close();
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-    } // close
-} // ChessServer
+    }
+}

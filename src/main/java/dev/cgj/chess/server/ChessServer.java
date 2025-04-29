@@ -116,9 +116,9 @@ public class ChessServer {
 
             // send board to players
             if (whiteMove) {
-                broadcast(game.textBoard() + "\nWhite's move.");
+                broadcast(game.board.textBoard() + "\nWhite's move.");
             } else {
-                broadcast(game.textBoard() + "\nBlack's move.");
+                broadcast(game.board.textBoard() + "\nBlack's move.");
             }
 
             // get input from player until valid move is provided

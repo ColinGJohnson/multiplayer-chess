@@ -1,22 +1,27 @@
 package dev.cgj.chess.engine;
 
-import java.awt.Point;
+import static dev.cgj.chess.engine.PieceColor.WHITE;
 
-/**
- * Inner class representing a Piece owned by a specific player
- */
-public class Piece {
-    Player player;
-    PieceType piece;
-    Point location; // TODO: does not update
+public record Piece(PieceType piece, PieceColor color) {
+    public static final Piece EMPTY = new Piece(PieceType.EMPTY, null);
 
-    public Piece() {
-        this.player = new Player(false, "placeHolder");
-        this.piece = PieceType.EMPTY;
-    }
+    /**
+     * Generates a string representation of a given Piece object.
+     * White pieces are lowercase and black pieces are uppercase.
+     *
+     * @return A symbol for the given piece.
+     */
+    public String symbol() {
+        String conversion = switch (piece) {
+            case PAWN -> "P";
+            case ROOK -> "R";
+            case KNIGHT -> "N";
+            case BISHOP -> "B";
+            case KING -> "K";
+            case QUEEN -> "Q";
+            case EMPTY -> "_";
+        };
 
-    public Piece(Player player, PieceType piece) {
-        this.player = player;
-        this.piece = piece;
+        return color == WHITE ? conversion : conversion.toLowerCase();
     }
 }

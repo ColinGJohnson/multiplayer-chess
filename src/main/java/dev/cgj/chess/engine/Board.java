@@ -1,6 +1,8 @@
 package dev.cgj.chess.engine;
 
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static dev.cgj.chess.engine.PieceColor.BLACK;
 import static dev.cgj.chess.engine.PieceColor.WHITE;
@@ -12,46 +14,36 @@ public class Board {
      */
     private final Piece[][] board = new Piece[8][8];
 
-    /**
-     * Handles a request to move a piece from a given Player.
-     *
-     * @param source      The Player attempting to make this move
-     * @param moveCode    String representation of the attempted move
-     * @return true if the move was legal and was executed, false otherwise.
-     */
-    public boolean move(PieceColor source, String moveCode) {
-
-        // remove whitespace from moveCode
-        moveCode = moveCode.replaceAll("[\\s]", "");
-
-        // reject requests with invalid moveCode
-        if (moveCode.length() != 4 || !moveCode.matches("(([a-hA-H][1-8]){2})")) {
-            return false;
-        }
-
-        // specify and validate the requested move
-        Move move = new Move(getBoardCoordinate(moveCode.substring(0, 2)), getBoardCoordinate(moveCode.substring(2)));
-
-        // if the move is valid, do it
-        if (move.valid(board)) {
-            board[move.finish.x][move.finish.y] = board[move.start.x][move.start.y];
-            board[move.start.x][move.start.y] = Piece.EMPTY;
-        }
-
-        // if method has proceeded to this point, the move must have been successful
-        return true;
+    public Piece get(Coordinate coordinate) {
+        return board[coordinate.rank()][coordinate.file()];
     }
 
     /**
-     * Gets a coordinate on the two-dimensional board from algebraic chess notation.
+     * Creates a new board containing the result of applying a move to this board.
      *
-     * @param moveCode The moveCode to translate. Eg. "A2A3"
-     * @return The point (r,c), accessed (x,y), on the chess board represented by the given moveCode, null if the moveCode is invalid.
+     * @param move The move to apply to this board.
+     * @return The new board if the move was legal, or an empty optional otherwise.
      */
-    private Point getBoardCoordinate(String moveCode) {
-        int r = (board.length - 1) - (moveCode.charAt(1) - 49);
-        int c = (moveCode.substring(0, 1).toLowerCase().toCharArray()[0] - 97);
-        return new Point(r, c);
+    public Optional<Board> move(Move move) {
+
+        // TODO: make board immutable
+        board[move.finish().rank()][move.finish().file()] = board[move.start().rank()][move.start().file()];
+        board[move.start().rank()][move.start().file()] = Piece.EMPTY;
+
+        // if method has proceeded to this point, the move must have been successful
+        return Optional.of(this);
+    }
+
+    public List<Coordinate> getPiecesOfColor(PieceColor color) {
+        List<Coordinate> pieces = new ArrayList<>();
+        for (int r = 0; r < board.length; r++) {
+            for (int c = 0; c < board[0].length; c++) {
+                if (board[r][c].color() == color) {
+                    pieces.add(new Coordinate(r, c));
+                }
+            }
+        }
+        return pieces;
     }
 
     public String textBoard() {

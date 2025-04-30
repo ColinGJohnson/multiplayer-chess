@@ -1,33 +1,30 @@
 package dev.cgj.chess.engine;
 
-import java.awt.Point;
+public record Move(Coordinate start, Coordinate finish) {
 
-class Move {
-    Point start;
-    Point finish;
+    public static Move fromString(String moveCode) {
+        moveCode = moveCode.replaceAll("[\\s]", "");
 
-    public Move(Point start, Point finish) {
-        this.start = start;
-        this.finish = finish;
-    }
-
-    /**
-     * @param targetBoard the board to test the validity of this move on.
-     * @return if the proposed move is valid on the given board
-     */
-    public boolean valid(Piece[][] targetBoard) {
-        return true;
-    }
-
-    /**
-     * @param targetBoard the board to test the effectiveness of this move on.
-     * @return The value of this move, -1 if the move is invalid.
-     */
-    public int getScore(Piece[][] targetBoard) {
-        if (!valid(targetBoard)) {
-            return -1;
-        } else {
-            return 0;
+        if (moveCode.length() != 4 || !moveCode.matches("(([a-hA-H][1-8]){2})")) {
+            throw new IllegalArgumentException("Invalid move code");
         }
+
+        // specify and validate the requested move
+        return new Move(
+            getBoardCoordinate(moveCode.substring(0, 2)),
+            getBoardCoordinate(moveCode.substring(2))
+        );
+    }
+
+    /**
+     * Gets a coordinate on the two-dimensional board from algebraic chess notation.
+     *
+     * @param moveCode The moveCode to translate. Eg. "A2A3"
+     * @return The point (r,c), accessed (x,y), on the chess board represented by the given moveCode.
+     */
+    private static Coordinate getBoardCoordinate(String moveCode) {
+        int r = 7 - (moveCode.charAt(1) - 49);
+        int c = (moveCode.substring(0, 1).toLowerCase().toCharArray()[0] - 97);
+        return new Coordinate(r, c);
     }
 }

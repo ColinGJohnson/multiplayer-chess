@@ -1,10 +1,9 @@
 package dev.cgj.chess.engine;
 
-import java.awt.Point;
 import java.util.ArrayList;
 
 public class Engine {
-    private int bestMoveRecursive(Player player, Player opponent, int depth, Piece[][] simBoard) {
+    private int bestMoveRecursive(PieceColor color, Board board, int depth) {
         int score = 0;
 
         // if desired analysis depth has been reached, go back
@@ -13,29 +12,30 @@ public class Engine {
         }
 
         // Check each of the player's pieces
-        for (Piece playerPiece : player.pieces) {
+        for (Coordinate playerPiece : board.getPiecesOfColor(color)) {
 
             // generate an list of possible moves
-            ArrayList<Move> moves = getMoves(playerPiece.location, simBoard);
+            ArrayList<Move> moves = getMoves(board, playerPiece);
 
             // iterate through list possible moves for the player
             for (Move move : moves) {
 
                 // iterate through the other player's pieces
-                for (Piece opponentPiece : opponent.pieces) {
+                PieceColor opponent = color.opposite();
+                for (Coordinate opponentPiece : board.getPiecesOfColor(opponent) ) {
 
                     // generate a list of possible countermoves
-                    ArrayList<Move> counterMoves = getMoves(opponentPiece.location, simBoard);
+                    ArrayList<Move> counterMoves = getMoves(board, opponentPiece);
 
                     // iterate through list of countermoves for the opponent
                     for (Move counterMove : counterMoves) {
 
                         // score the current move/countermove combination
-                        //score += move.getScore(board);
-                        //score -= counterMove.getScore(board);
+                        // score += board.move().getScore(board);
+                        // score -= counterMove.getScore(board);
 
                         // check score for the next moves in this scenario
-                        score += bestMoveRecursive(player, opponent, depth - 1, simBoard.clone());
+                        score += bestMoveRecursive(color, board, depth - 1);
                     }
                 }
             }
@@ -45,7 +45,7 @@ public class Engine {
         return score;
     }
 
-    private ArrayList<Move> getMoves(Point pieceLocation, Piece[][] board) {
+    private ArrayList<Move> getMoves(Board board, Coordinate coordinate) {
         // TODO: Implement
         return new ArrayList<>();
     }

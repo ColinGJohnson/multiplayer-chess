@@ -15,6 +15,12 @@ public class ChessGame {
 
     public boolean move(boolean whitePieces, String moveCode) {
         PieceColor pieceColor = (whitePieces) ? PieceColor.WHITE : PieceColor.BLACK;
-        return board.move(pieceColor, moveCode);
+
+        Move move = Move.fromString(moveCode);
+        if (board.get(move.start()).color() == pieceColor) {
+            return false;
+        }
+
+        return board.move(move).isPresent();
     }
 }

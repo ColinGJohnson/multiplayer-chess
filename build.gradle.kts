@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+    implementation("info.picocli:picocli:4.7.7")
     testImplementation(kotlin("test"))
 }
 

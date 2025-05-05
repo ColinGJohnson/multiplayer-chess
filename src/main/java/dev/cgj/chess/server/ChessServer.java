@@ -1,6 +1,7 @@
 package dev.cgj.chess.server;
 
 import dev.cgj.chess.engine.ChessGame;
+import dev.cgj.chess.ui.BoardUtils;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,7 +20,6 @@ public class ChessServer {
     public ChessServer(int ServerPort) {
         try {
             socket = new ServerSocket(ServerPort);
-
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Error starting server socket.");
@@ -116,9 +116,9 @@ public class ChessServer {
 
             // send board to players
             if (whiteMove) {
-                broadcast(game.board.textBoard() + "\nWhite's move.");
+                broadcast(BoardUtils.textBoard(game.board) + "\nWhite's move.");
             } else {
-                broadcast(game.board.textBoard() + "\nBlack's move.");
+                broadcast(BoardUtils.textBoard(game.board) + "\nBlack's move.");
             }
 
             // get input from player until valid move is provided

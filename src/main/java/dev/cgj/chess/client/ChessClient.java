@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -16,9 +17,9 @@ public class ChessClient {
     Socket clientSocket = null;
     BufferedReader input = null;
     PrintWriter output = null;
-    ArrayList<String> messageQueue = new ArrayList<String>();
-    Thread listen = new Thread();
+    ArrayList<String> messageQueue = new ArrayList<>();
     Scanner scanner = new Scanner(System.in);
+    Thread listen;
 
     public ChessClient (String serverAddress, int serverPort) {
         connect(serverAddress, serverPort);
@@ -43,7 +44,7 @@ public class ChessClient {
         try {
             clientSocket = new Socket(serverAddress, serverPort);
         } catch (IOException e) {
-            System.out.println("[!] Connection to Server failed.");
+            System.out.println("Connection to Server failed!");
             return;
         }
 
@@ -55,43 +56,40 @@ public class ChessClient {
             return;
         }
 
-        System.out.println(String.format("Connected to server at %s:%s", serverAddress, serverPort));
+        System.out.printf("Connected to server at %s:%s%n", serverAddress, serverPort);
         connected = true;
 
-        listen = new Thread() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        String line = "";
-                        line = input.readLine();
-                        if (line != "" && line != null && line != "\n") {
-                            messageQueue.add(line);
-                        }
-                    } catch (IOException e) {
-                        System.out.println("[!] Failed to read from server.");
+        listen = new Thread(() -> {
+            while (true) {
+                try {
+                    String line;
+                    line = input.readLine();
+                    if (line != null && !Objects.equals(line, "") && !line.equals("\n")) {
+                        messageQueue.add(line);
+                    }
+                } catch (IOException e) {
+                    System.out.println("[!] Failed to read from server.");
+                    disconnect();
+                }
+
+                // if the client has received messages, handle them.
+                if (!messageQueue.isEmpty()) {
+
+                    // messages starting with '!' regard connection status
+                    if (!messageQueue.getFirst().isEmpty() && messageQueue.getFirst().charAt(0) == '!') {
+                        System.out.println("Connection Closed By Server. Reason: " + messageQueue.getFirst().substring(1));
                         disconnect();
+
+                        // other messages are meant to be displayed to the client eg. board appearance
+                    } else {
+                        System.out.println("[S] " + messageQueue.getFirst());
                     }
 
-                    // if the client has received messages, handle them.
-                    if (!messageQueue.isEmpty()) {
-
-                        // messages starting with '!' regard connection status
-                        if (!messageQueue.getFirst().isEmpty() && messageQueue.getFirst().charAt(0) == '!') {
-                            System.out.println("Connection Closed By Server. Reason: " + messageQueue.getFirst().substring(1));
-                            disconnect();
-
-                            // other messages are meant to be displayed to the client eg. board appearance
-                        } else {
-                            System.out.println("[S] " + messageQueue.getFirst());
-                        }
-
-                        // remove handled message
-                        messageQueue.removeFirst();
-                    }
+                    // remove handled message
+                    messageQueue.removeFirst();
                 }
             }
-        };
+        });
         listen.start();
 
         Timer serverCheckIn = new Timer();

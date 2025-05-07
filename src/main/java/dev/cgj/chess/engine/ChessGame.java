@@ -8,9 +8,9 @@ public class ChessGame {
     public Player black;
 
     public ChessGame(String whiteName, String blackName) {
+        board = Board.EMPTY;
         white = new Player(true, whiteName);
         black = new Player(false, blackName);
-        board.reset();
     }
 
     public boolean move(boolean whitePieces, String moveCode) {
@@ -21,6 +21,7 @@ public class ChessGame {
             return false;
         }
 
-        return board.move(move).isPresent();
+        board = board.move(move);
+        return true;
     }
 }

@@ -2,72 +2,22 @@ package dev.cgj.chess.server;
 
 import dev.cgj.chess.engine.ChessGame;
 import dev.cgj.chess.ui.BoardUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ChessServer {
-    boolean serverOpen;
-    private ServerSocket socket = null;
-    private final ArrayList<ClientHandler> clients = new ArrayList<>();
+    private static final Logger LOG = LoggerFactory.getLogger(ChessServer.class);
+    private final ConnectionHandler connectionHandler;
 
-    public ChessServer(int ServerPort) {
-        try {
-            socket = new ServerSocket(ServerPort);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Error starting server socket.");
-            System.exit(0);
-        }
-        System.out.println("Server started on port " + ServerPort);
+    boolean serverOpen;
+
+    public ChessServer(int serverPort) {
 
         // start a new thread to handle incoming client connections
-        new Thread(() -> {
-            try {
-                while (true) {
-                    clients.add(new ClientHandler(socket.accept()));
-                    broadcast("Client at "
-                        + clients.get(clients.size() - 1).address.substring(1)
-                        + " connected, current connections: "
-                        + clients.size()
-                        + ".");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Error adding client");
-            } finally {
-                close();
-                System.exit(0);
-            }
-        }).start();
-
-        // start a new thread to watch for server console input
-        new Thread(() -> {
-            String s;
-            Scanner scanner = new Scanner(System.in);
-
-            while (true) {
-                s = scanner.nextLine();
-                if (!s.isEmpty() && s.toLowerCase().trim().startsWith("\\broadcast")) {
-                    broadcast(s.replace("\\broadcast", "").trim());
-                }
-            }
-        }).start();
-
-        Timer connectionMonitor = new Timer();
-        connectionMonitor.scheduleAtFixedRate(new TimerTask() {
-
-            @Override
-            public void run() {
-                checkConnections();
-            }
-        }, new Date(), 1000);
+        connectionHandler = new ConnectionHandler(this, serverPort);
+        new Thread(connectionHandler).start();
 
         // the server is now open
         serverOpen = true;
@@ -76,12 +26,10 @@ public class ChessServer {
         while (serverOpen) {
             playGame();
         }
-
-        // end the program when the server is closed
-        System.exit(0);
     }
 
     public void playGame() {
+        ArrayList<ClientHandler> clients = connectionHandler.getClients();
 
         // wait for players
         broadcast("Waiting for players... " + clients.size() + "/2");
@@ -160,39 +108,9 @@ public class ChessServer {
     }
 
     public void broadcast(String message) {
-        System.out.println("[Broadcast] \"" + message + "\"");
-        for (ClientHandler client : clients) {
+        LOG.info("[Broadcast] \"{}\"", message);
+        for (ClientHandler client : connectionHandler.getClients()) {
             client.sendMessage(message, false);
-        }
-    }
-
-    public void checkConnections() {
-
-        // update the clients' connection status
-        for (ClientHandler client : clients) {
-            client.update();
-        }
-
-        // iterate through this server's clients and remove disconnected clients
-        Iterator<ClientHandler> iterator = clients.iterator();
-        while (iterator.hasNext()) {
-            ClientHandler client = iterator.next();
-
-            // if client is not connected, disconnect it
-            if (!client.connected) {
-                client.close();
-                iterator.remove();
-                broadcast("Client at " + client.address + " has disconnected.");
-                System.out.println("Current connections: " + clients.size());
-            }
-        }
-    }
-
-    public void close() {
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
